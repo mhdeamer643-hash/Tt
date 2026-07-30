@@ -6,7 +6,7 @@ export default defineConfig({
   server: { port: 5173 },
   build: {
     rollupOptions: {
-      external: ['اسم_الوحدة_التي_تريد_استبعادها']
+      external: [""]
     }
   }
 });
