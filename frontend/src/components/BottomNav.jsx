@@ -1,6 +1,1 @@
-```javascript
-const items = [
- { to: "/home", icon: "🏠", label: "الرئيسية" },
- { to: "/orders", icon: "📦", label: 
-
-```
+: { to: "/orders", icon: "📦", label: "الطلبات" }
