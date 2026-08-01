@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>لوحة إدارة راحتي</title>
+<style>
+  body{font-family:sans-serif;background:#f5f3ef;margin:0;padding:16px;color:#23291f}
+  h1{font-size:20px}
+  h2{font-size:16px;margin-top:28px;border-bottom:2px solid #1B6B5E;padding-bottom:6px}
+  input,select{padding:8px;border:1px solid #ccc;border-radius:8px;margin:4px 0;width:100%;box-sizing:border-box}
+  button{background:#1B6B5E;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;margin-top:6px}
+  button.danger{background:#D64545}
+  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .login{max-width:320px;margin:60px auto;text-align:center}
+  #app{display:none}
+</style>
+</head>
+<body>
+
+<div class="login" id="loginBox">
+  <h1>لوحة إدارة راحتي</h1>
+  <input type="password" id="passInput" placeholder="كلمة السر">
+  <button onclick="login()">دخول</button>
+  <div id="loginError" style="color:red"></div>
+</div>
+
+<div id="app">
+  <h1>لوحة إدارة راحتي</h1>
+
+  <h2>المدن</h2>
+  <div id="citiesList"></div>
+  <div class="card">
+    <input id="cityName" placeholder="اسم المدينة">
+    <button onclick="addCity()">إضافة مدينة</button>
+  </div>
+
+  <h2>المناطق</h2>
+  <div id="areasList"></div>
+  <div class="card">
+    <select id="areaCity"></select>
+    <input id="areaName" placeholder="اسم المنطقة">
+    <button onclick="addArea()">إضافة منطقة</button>
+  </div>
+
+  <h2>المطاعم</h2>
+  <div id="restaurantsList"></div>
+  <div class="card">
+    <select id="restArea"></select>
+    <input id="restName" placeholder="اسم المطعم">
+    <input id="restCategory" placeholder="التصنيف (مثال: مشاوي شرقي)">
+    <input id="restRating" placeholder="التقييم (مثال: 4.5)">
+    <input id="restTime" placeholder="وقت التوصيل (مثال: 20-30 دقيقة)">
+    <button onclick="addRestaurant()">إضافة مطعم</button>
+  </div>
+
+  <h2>الطلبات الأخيرة</h2>
+  <div id="ordersList"></div>
+</div>
+
+<script>
+let ADMIN_PASS = "";
+const API = "/api/admin";
+
+function login() {
+  ADMIN_PASS = document.getElementById("passInput").value;
+  loadAll().then(() => {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  }).catch(() => {
+    document.getElementById("loginError").innerText = "كلمة السر غير صحيحة";
+  });
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { "Content-Type": "application/json", "x-admin-password": ADMIN_PASS, ...(opts.headers || {}) },
+  });
+  if (!res.ok) throw new Error("failed");
+  return res.json();
+}
+
+async function loadAll() {
+  await loadCities();
+  await loadAreas();
+  await loadRestaurants();
+  await loadOrders();
+}
+
+async function loadCities() {
+  const cities = await api("/cities");
+  document.getElementById("citiesList").innerHTML = cities.map(c => `
+    <div class="card row">
+      <span>${c.name_ar}</span>
+      <button class="danger" onclick="deleteCity(${c.id})">حذف</button>
+    </div>`).join("");
+  document.getElementById("areaCity").innerHTML = cities.map(c => `<option value="${c.id}">${c.name_ar}</option>`).join("");
+}
+
+async function addCity() {
+  const name = document.getElementById("cityName").value;
+  if (!name) return;
+  await api("/cities", { method: "POST", body: JSON.stringify({ name_ar: name }) });
+  document.getElementById("cityName").value = "";
+  loadAll();
+}
+
+async function deleteCity(id) {
+  await api("/cities/" + id, { method: "DELETE" });
+  loadAll();
+}
+
+async function loadAreas() {
+  const areas = await api("/areas");
+  document.getElementById("areasList").innerHTML = areas.map(a => `
+    <div class="card row">
+      <span>${a.name_ar} (${a.city_name})</span>
+      <button class="danger" onclick="deleteArea(${a.id})">حذف</button>
+    </div>`).join("");
+  document.getElementById("restArea").innerHTML = areas.map(a => `<option value="${a.id}">${a.name_ar} - ${a.city_name}</option>`).join("");
+}
+
+async function addArea() {
+  const city_id = document.getElementById("areaCity").value;
+  const name = document.getElementById("areaName").value;
+  if (!name) return;
+  await api("/areas", { method: "POST", body: JSON.stringify({ city_id, name_ar: name }) });
+  document.getElementById("areaName").value = "";
+  loadAll();
+}
+
+async function deleteArea(id) {
+  await api("/areas/" + id, { method: "DELETE" });
+  loadAll();
+}
+
+async function loadRestaurants() {
+  const restaurants = await api("/restaurants");
+  document.getElementById("restaurantsList").innerHTML = restaurants.map(r => `
+    <div class="card row">
+      <span>${r.name_ar} - ${r.category_ar} (${r.area_name})</span>
+      <button class="danger" onclick="deleteRestaurant(${r.id})">حذف</button>
+    </div>`).join("");
+}
+
+async function addRestaurant() {
+  const area_id = document.getElementById("restArea").value;
+  const name_ar = document.getElementById("restName").value;
+  const category_ar = document.getElementById("restCategory").value;
+  const rating = parseFloat(document.getElementById("restRating").value) || 4.5;
+  const delivery_time_label = document.getElementById("restTime").value || "20-30 دقيقة";
+  if (!name_ar) return;
+  await api("/restaurants", { method: "POST", body: JSON.stringify({ area_id, name_ar, category_ar, rating, delivery_time_label }) });
+  document.getElementById("restName").value = "";
+  document.getElementById("restCategory").value = "";
+  document.getElementById("restRating").value = "";
+  document.getElementById("restTime").value = "";
+  loadAll();
+}
+
+async function deleteRestaurant(id) {
+  await api("/restaurants/" + id, { method: "DELETE" });
+  loadAll();
+}
+
+async function loadOrders() {
+  const orders = await api("/orders");
+  document.getElementById("ordersList").innerHTML = orders.map(o => `
+    <div class="card">
+      <div class="row"><b>طلب #${o.id} - ${o.restaurant_name}</b><span>${o.total} ₪</span></div>
+      <div class="row">
+        <span>${o.status}</span>
+        <select onchange="updateStatus(${o.id}, this.value)">
+          <option value="">تغيير الحالة</option>
+          <option value="processing">قيد التحضير</option>
+          <option value="delivering">قيد التوصيل</option>
+          <option value="delivered">تم التسليم</option>
+          <option value="canceled">ملغي</option>
+        </select>
+      </div>
+    </div>`).join("");
+}
+
+async function updateStatus(id, status) {
+  if (!status) return;
+  await api("/orders/" + id + "/status", { method: "PATCH", body: JSON.stringify({ status }) });
+  loadOrders();
+}
+</script>
+</body>
+</html>
