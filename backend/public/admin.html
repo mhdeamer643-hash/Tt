@@ -7,13 +7,15 @@
   body{font-family:sans-serif;background:#f5f3ef;margin:0;padding:16px;color:#23291f}
   h1{font-size:20px}
   h2{font-size:16px;margin-top:28px;border-bottom:2px solid #1B6B5E;padding-bottom:6px}
-  input,select{padding:8px;border:1px solid #ccc;border-radius:8px;margin:4px 0;width:100%;box-sizing:border-box}
+  input,select,textarea{padding:8px;border:1px solid #ccc;border-radius:8px;margin:4px 0;width:100%;box-sizing:border-box}
   button{background:#1B6B5E;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;margin-top:6px}
   button.danger{background:#D64545}
+  button.small{padding:6px 10px;font-size:12px;margin-top:0}
   .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
   .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
   .login{max-width:320px;margin:60px auto;text-align:center}
   #app{display:none}
+  .indent{margin-right:20px;border-right:2px solid #eee;padding-right:12px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -43,7 +45,7 @@
     <button onclick="addArea()">إضافة منطقة</button>
   </div>
 
-  <h2>المطاعم</h2>
+  <h2>المطاعم والقوائم</h2>
   <div id="restaurantsList"></div>
   <div class="card">
     <select id="restArea"></select>
@@ -135,13 +137,52 @@ async function deleteArea(id) {
   loadAll();
 }
 
+let restaurantsCache = [];
+
 async function loadRestaurants() {
   const restaurants = await api("/restaurants");
-  document.getElementById("restaurantsList").innerHTML = restaurants.map(r => `
-    <div class="card row">
-      <span>${r.name_ar} - ${r.category_ar} (${r.area_name})</span>
-      <button class="danger" onclick="deleteRestaurant(${r.id})">حذف</button>
-    </div>`).join("");
+  restaurantsCache = restaurants;
+  const menus = await Promise.all(restaurants.map(r => api(`/restaurants/${r.id}/menu`)));
+  document.getElementById("restaurantsList").innerHTML = restaurants.map((r, i) => {
+    const menu = menus[i];
+    const menuHtml = menu.map(cat => `
+      <div class="indent">
+        <div class="row"><b>${cat.name_ar}</b><button class="danger small" onclick="deleteCategory(${cat.id})">حذف القسم</button></div>
+        ${cat.dishes.map(d => `
+          <div class="row" style="font-size:13px;padding:4px 0;">
+            <span>${d.name_ar} - ${d.price} ₪</span>
+            <button class="danger small" onclick="deleteDish(${d.id})">حذف</button>
+          </div>`).join("")}
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <input placeholder="اسم طبق جديد" id="dishName${cat.id}" style="margin:0;">
+          <input placeholder="السعر" id="dishPrice${cat.id}" style="margin:0;width:70px;">
+          <button class="small" onclick="addDish(${cat.id})">إضافة</button>
+        </div>
+      </div>`).join("");
+    return `
+      <div class="card">
+        <div class="row">
+          <b>${r.name_ar}</b>
+          <span>
+            <button class="small" onclick="toggleMenu(${r.id})">القائمة</button>
+            <button class="danger small" onclick="deleteRestaurant(${r.id})">حذف المطعم</button>
+          </span>
+        </div>
+        <div style="font-size:12px;color:#888;">${r.category_ar} - ${r.area_name}</div>
+        <div id="menuBox${r.id}" style="display:none;">
+          ${menuHtml}
+          <div class="indent" style="display:flex;gap:6px;">
+            <input placeholder="اسم قسم جديد (مثال: مقبلات)" id="catName${r.id}" style="margin:0;">
+            <button class="small" onclick="addCategory(${r.id})">إضافة قسم</button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function toggleMenu(id) {
+  const box = document.getElementById("menuBox" + id);
+  box.style.display = box.style.display === "none" ? "block" : "none";
 }
 
 async function addRestaurant() {
@@ -156,37 +197,14 @@ async function addRestaurant() {
   document.getElementById("restCategory").value = "";
   document.getElementById("restRating").value = "";
   document.getElementById("restTime").value = "";
-  loadAll();
+  loadRestaurants();
 }
 
 async function deleteRestaurant(id) {
   await api("/restaurants/" + id, { method: "DELETE" });
-  loadAll();
+  loadRestaurants();
 }
 
-async function loadOrders() {
-  const orders = await api("/orders");
-  document.getElementById("ordersList").innerHTML = orders.map(o => `
-    <div class="card">
-      <div class="row"><b>طلب #${o.id} - ${o.restaurant_name}</b><span>${o.total} ₪</span></div>
-      <div class="row">
-        <span>${o.status}</span>
-        <select onchange="updateStatus(${o.id}, this.value)">
-          <option value="">تغيير الحالة</option>
-          <option value="processing">قيد التحضير</option>
-          <option value="delivering">قيد التوصيل</option>
-          <option value="delivered">تم التسليم</option>
-          <option value="canceled">ملغي</option>
-        </select>
-      </div>
-    </div>`).join("");
-}
-
-async function updateStatus(id, status) {
-  if (!status) return;
-  await api("/orders/" + id + "/status", { method: "PATCH", body: JSON.stringify({ status }) });
-  loadOrders();
-}
-</script>
-</body>
-</html>
+async function addCategory(restaurant_id) {
+  const name_ar = document.getElementById("catName" + restaurant_id).value;
+  if (!name_ar
