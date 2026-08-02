@@ -56,7 +56,7 @@ export default function RestaurantScreen() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>{dish.name_ar}</div>
               <div style={{ fontSize: 11.5, color: "var(--muted)", margin: "3px 0 6px" }}>{dish.description_ar}</div>
-              <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 13 }}>{dish.price} ₪</div>
+              <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 13 }}>{dish.price} <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 13 }}>{dish.price} ل.س</div>
             </div>
             <button
               style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--primary)", color: "#fff", border: "none", fontSize: 16, cursor: "pointer" }}
@@ -69,7 +69,7 @@ export default function RestaurantScreen() {
         <div className="bottom-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{cartCount} عناصر بالسلة</div>
           <button className="btn btn-primary" style={{ width: "auto", padding: "13px 26px" }} onClick={() => navigate("/cart")}>
-            عرض السلة · {cartTotal} ₪
+            عرض السلة · {cartTotal} ل.س
           </button>
         </div>
       )}
