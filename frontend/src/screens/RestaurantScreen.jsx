@@ -56,8 +56,10 @@ export default function RestaurantScreen() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>{dish.name_ar}</div>
               <div style={{ fontSize: 11.5, color: "var(--muted)", margin: "3px 0 6px" }}>{dish.description_ar}</div>
-              <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 13 }}>{dish.price} <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 13 }}>{dish.price} ل.س</div>
-            </div>
+          <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 13 }}>{dish.price} ل.س</div>
+
+
+  
             <button
               style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--primary)", color: "#fff", border: "none", fontSize: 16, cursor: "pointer" }}
               onClick={() => addToCart(restaurant.id, restaurant.name_ar, dish)}
