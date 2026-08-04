@@ -68,7 +68,7 @@ export default function RestaurantScreen() {
           </div>
         ))}
       </div>
-      {cartCount > 0 && (
+      {cartCount > 0 && }
         <div className="bottom-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{cartCount} عناصر بالسلة</div>
           <button className="btn btn-primary" style={{ width: "auto", padding: "13px 26px" }} onClick={() => navigate("/cart")}>
