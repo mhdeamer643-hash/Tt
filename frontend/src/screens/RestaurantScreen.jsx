@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { api } from "../api";
+import api from "../api";
+
 import { useApp } from "../context/AppContext";
 
 export default function RestaurantScreen() {
@@ -71,7 +72,7 @@ export default function RestaurantScreen() {
         <div className="bottom-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: 12.5, color: "var(--muted)" }}>{cartCount} عناصر بالسلة</div>
           <button className="btn btn-primary" style={{ width: "auto", padding: "13px 26px" }} onClick={() => navigate("/cart")}>
-            عرض السلة · {cartTotal} ل.س
+          عرض السلة · {cartTotal} ل.س
           </button>
         </div>
       )}
