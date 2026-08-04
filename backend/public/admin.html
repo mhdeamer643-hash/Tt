@@ -207,4 +207,52 @@ async function deleteRestaurant(id) {
 
 async function addCategory(restaurant_id) {
   const name_ar = document.getElementById("catName" + restaurant_id).value;
-  if (!name_ar
+  if (!name_ar) return;
+  await api("/categories", { method: "POST", body: JSON.stringify({ restaurant_id, name_ar }) });
+  loadRestaurants();
+}
+
+async function deleteCategory(id) {
+  await api("/categories/" + id, { method: "DELETE" });
+  loadRestaurants();
+}
+
+async function addDish(category_id) {
+  const name_ar = document.getElementById("dishName" + category_id).value;
+  const price = parseFloat(document.getElementById("dishPrice" + category_id).value) || 0;
+  if (!name_ar) return;
+  await api("/dishes", { method: "POST", body: JSON.stringify({ category_id, name_ar, price }) });
+  loadRestaurants();
+}
+
+async function deleteDish(id) {
+  await api("/dishes/" + id, { method: "DELETE" });
+  loadRestaurants();
+}
+
+async function loadOrders() {
+  const orders = await api("/orders");
+  document.getElementById("ordersList").innerHTML = orders.map(o => `
+    <div class="card">
+      <div class="row"><b>طلب #${o.id} - ${o.restaurant_name}</b><span>${o.total} ₪</span></div>
+      <div class="row">
+        <span>${o.status}</span>
+        <select onchange="updateStatus(${o.id}, this.value)">
+          <option value="">تغيير الحالة</option>
+          <option value="processing">قيد التحضير</option>
+          <option value="delivering">قيد التوصيل</option>
+          <option value="delivered">تم التسليم</option>
+          <option value="canceled">ملغي</option>
+        </select>
+      </div>
+    </div>`).join("");
+}
+
+async function updateStatus(id, status) {
+  if (!status) return;
+  await api("/orders/" + id + "/status", { method: "PATCH", body: JSON.stringify({ status }) });
+  loadOrders();
+}
+</script>
+</body>
+</html>
