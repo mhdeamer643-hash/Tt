@@ -45,20 +45,20 @@ export default function CartScreen() {
               <span style={{ fontSize: 13, fontWeight: 700 }}>{item.quantity}</span>
               <button style={{ border: "none", background: "none", fontWeight: 700, cursor: "pointer" }} onClick={() => updateQuantity(item.id, 1)}>+</button>
             </div>
-            <div style={{ fontWeight: 700, fontSize: 13, width: 44, textAlign: "left" }}>{item.price * item.quantity} ₪</div>
+            <div style={{ fontWeight: 700, fontSize: 13, width: 44, textAlign: "left" }}>{item.price * item.quantity} ل.س</div>
           </div>
         ))}
 
         <div className="card" style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--muted)" }}>
-            <span>المجموع الفرعي</span><span>{subtotal} ₪</span>
+            <span>المجموع الفرعي</span><span>{subtotal} ل.س</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--muted)" }}>
-            <span>رسوم التوصيل</span><span>{DELIVERY_FEE} ₪</span>
+            <span>رسوم التوصيل</span><span>{DELIVERY_FEE} ل.س</span>
           </div>
           <div style={{ borderTop: "1px dashed var(--border)", margin: "4px 0" }}></div>
           <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontFamily: "Cairo", fontSize: 15 }}>
-            <span>الإجمالي</span><span>{total} ₪</span>
+            <span>الإجمالي</span><span>{total} ل.س</span>
           </div>
         </div>
       </div>
