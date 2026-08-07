@@ -37,3 +37,5 @@ export const api = {
   getOrder: (token, id) => request(`/orders/${id}`, { token }),
   advanceOrderStatus: (token, id) => request(`/orders/${id}/advance-status`, { method: "POST", token }),
 };
+
+export default api;
