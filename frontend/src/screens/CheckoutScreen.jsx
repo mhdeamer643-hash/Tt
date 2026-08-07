@@ -102,7 +102,7 @@ export default function CheckoutScreen() {
 
         <div className="card">
           <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontFamily: "Cairo", fontSize: 15 }}>
-            <span>الإجمالي</span><span>{total} ₪</span>
+            <span>الإجمالي</span><span>{total} ل.س</span>
           </div>
           <div className="hint" style={{ marginTop: 8 }}>الدفع نقدًا عند الاستلام</div>
         </div>
