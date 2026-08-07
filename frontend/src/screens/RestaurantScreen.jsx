@@ -58,7 +58,7 @@ export default function RestaurantScreen() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>{dish.name_ar}</div>
               <div style={{ color: 'var(--muted)', margin: '3px 0 6px', fontSize: 11.5 }}>{dish.description_ar}</div>
-              <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 13 }}>{dish.price} ر.س</div>
+              <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 13 }}>{dish.price} ل.س</div>
             </div>
             <button 
               style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--primary)', color: '#fff', border: 'none', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
