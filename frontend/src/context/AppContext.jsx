@@ -63,10 +63,12 @@ export function AppProvider({ children }) {
     setCart({ restaurantId: null, restaurantName: null, items: [] });
   }
 
+  const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
   const value = {
     token, user, login, logout,
     city, setCity, area, setArea,
-    cart, addToCart, updateQuantity, clearCart,
+    cart, cartCount, addToCart, updateQuantity, clearCart,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
